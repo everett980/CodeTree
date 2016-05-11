@@ -9,6 +9,7 @@ import {reducer as form} from 'redux-form';
 import info from './info';
 import widgets from './widgets';
 import modalCtrl from './modalCtrl';
+import ruleManager from './ruleManager';
 
 export default combineReducers({
   routing: routerReducer,
@@ -22,5 +23,6 @@ export default combineReducers({
   }),
   info,
   widgets,
-  modalCtrl
+  modalCtrl,
+  ruleManager
 });
