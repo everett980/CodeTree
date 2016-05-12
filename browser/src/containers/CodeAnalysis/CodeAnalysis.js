@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Helmet from 'react-helmet';
 import { MiniInfoBar } from 'components';
 import { openModal, closeModal } from '../../redux/modules/modalCtrl';
+import { addLocation } from '../../redux/modules/ruleManager';
 import { connect } from 'react-redux';
 import { RuleBox } from 'components';
 import { ModalWrapper } from 'components';
@@ -29,41 +30,37 @@ class CodeAnalysis extends Component {
 			  testsLeft: testStr.split(".")
 			}
 		});
+		const propRef = this.props;
 		const results = {};
 		(function execTests(node, tests) {
 			if(!node) return;
 			if(typeof node !== 'object') return;
 			if(!node.hasOwnProperty('type')) return;
 			if(!tests) return;
-			console.log(node.type);
-			console.log(node);
-			console.log(tests);
 			const newTests = tests.map(function(test) {
 				const filteredTests = test.testsLeft.filter(function(testStatement, ind) {
-					return ind || (test.testsLeft && node.type.localeCompare(test.testsLeft[0]));
+					if(ind) return true;
+					const keys = Object.keys(node);
+					for(let i = 0; i<keys.length; i++) {
+						if(typeof node[keys[i]] !== 'string') continue;
+						const x = node[keys[i]].toLowerCase().indexOf(testStatement.toLowerCase());
+						if(x > -1) return false;
+					}
+					return true;
 				});
 				return {
 					test: test.test,
-				testsLeft: filteredTests
+					testsLeft: filteredTests
 				}
-			}).filter(function(test) {
+			}).filter((test) => {
 				if(test.testsLeft.length) {
 					return true;
 				} else {
 					results[test.test] = (Array.isArray(results[test.test])) ? results[test.test].concat([node.loc.start.line]) : [node.loc.start.line];
+					propRef.addLocation(test.test, node.loc.start.line);
 					return false;
 				}
 			});
-			//Nodes can be in 'body', 'object', 'property', 'left', 'right', 'id', 'params', 'expression', 'arguments', 'argument', and 'callee'
-			/* if(node.body) {
-				if(Array.isArray(node.body)) {
-					node.body.forEach(function(childNode) {
-						execTests(childNode, newTests);
-					});
-				} else {
-					execTests(node.body, newTests);
-				}
-			} */
 			Object.keys(node).forEach(function(property) {
 				let nextToProcess = node[property];
 				if(Array.isArray(nextToProcess)) {
@@ -91,7 +88,7 @@ class CodeAnalysis extends Component {
 				</div><div style={{marginTop: "80px", width: '50%', float: 'right'}}>
 				<button onClick={::this.props.openModal} style={{float: 'left', clear: 'both'}}>Add Rule</button>
 				<hr style={{clear: 'both'}}/>
-				<RuleBox style={{clear: 'both'}} rulesArr={['word', 'first.second.third']}/>
+				<RuleBox style={{clear: 'both'}} rulesObj={this.props.ruleManager}/>
 				</div>
 				<hr style={{clear: 'both'}}/>
 				</div>
@@ -111,6 +108,9 @@ function mapDispatchToProps(dispatch) {
 				   },
 		closeModal: () => {
 						dispatch(closeModal());
+					},
+		addLocation: (rule, loc) => {
+						 dispatch(addLocation(rule, loc));
 					}
 	}
 }

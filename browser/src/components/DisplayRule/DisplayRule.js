@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react';
+import { connect } from 'react-redux';
+import { openModal, closeModal } from '../../redux/modules/modalCtrl';
 
-export default class DisplayRule extends Component {
+class DisplayRule extends Component {
 	render() {
 		let thisRule;
 		let childrenRules;
@@ -34,8 +36,22 @@ export default class DisplayRule extends Component {
 					{thisRule}
 					</p>
 					{childrenRules ? <DisplayRule rules={childrenRules} isChild='true'/> : ""}
+					{!this.props.isChild ? this.props.rulesObj[this.props.rules].yn : ''}
 				</div>
 			</div>
 		)
 	}
 }
+function mapStateToProps(state) {
+	return {
+		rulesObj: state.ruleManager
+	}
+}
+function mapDispatchToProps(dispatch) {
+	return {
+		openModal: () => {
+					   dispatch(openModal());
+					  }
+	}
+}
+export default connect(mapStateToProps, mapDispatchToProps)(DisplayRule);

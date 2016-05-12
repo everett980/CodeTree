@@ -1,15 +1,32 @@
 const ADD_RULE = 'addRule';
 const DELETE_RULE = 'deleteRule';
+const ADD_LOCATION = 'addLocation';
+const RESET_LOCATIONS = 'resetLocations';
 
 export default function reducer(state = {}, action = {}) {
 	switch(action.type) {
 		case ADD_RULE:
 			console.log('adding rule: ', action.rule);
-			state[action.rule.split('-')[0]] = action.rule.split('-')[1];
+			state[action.rule.split('-')[0]] = {
+				yn: action.rule.split('-')[1],
+				loc: []
+			}
 			return state;
 		case DELETE_RULE:
 			console.log('deleting rule: ', action.rule);
 			state.delete(action.rule.split('-')[0]);
+			return state;
+		case ADD_LOCATION:
+			console.log('adding line number '+action.loc+' to rule '+action.rule);
+			if(state[action.rule]) {
+				state[action.rule].loc.push(action.loc);
+			}
+			return state;
+		case RESET_LOCATIONS: 
+			console.log('reseting all locations');
+			Object.keys(state).forEach(function(rule) {
+				state[rule].loc = [];
+			});
 			return state;
 		default:
 			return state;
@@ -26,5 +43,17 @@ export function deleteRule(rule) {
 	return {
 		type: DELETE_RULE,
 		rule: rule
+	}
+}
+export function addLocation(rule, loc) {
+	return {
+		type: ADD_LOCATION,
+		rule: rule,
+		loc: loc
+	}
+}
+export function resetLocations() {
+	return {
+		type: RESET_LOCATIONS
 	}
 }
