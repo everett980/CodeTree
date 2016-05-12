@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Helmet from 'react-helmet';
 import { MiniInfoBar } from 'components';
 import { openModal, closeModal } from '../../redux/modules/modalCtrl';
-import { addLocation, resetLocations } from '../../redux/modules/ruleManager';
+import { addRule, addLocation, resetLocations } from '../../redux/modules/ruleManager';
 import { connect } from 'react-redux';
 import { RuleBox } from 'components';
 import { ModalWrapper } from 'components';
@@ -12,12 +12,20 @@ const Modal = require('react-modal');
 
 class CodeAnalysis extends Component {
 	componentWillMount() {
-		this.setState({parseErrors: []});
+		const propsRef = this.props;
+		this.setState({parseErrors: [], showLink: false});
+		if(this.props.params) {
+			if(this.props.params.ruleStr) {
+				this.props.params.ruleStr.split(',').forEach(function(rule) {
+					propsRef.addRule(""+rule);
+				});
+			}
+		}
 	}
 	codeVal = "";
-	ruleVal = "";
 	storeCode(e) {
 		this.codeVal= e.target.value;
+		this.logger();
 	}
 	logger() {
 		let parsed = acorn.parse_dammit(this.codeVal, {locations: true});
@@ -82,18 +90,29 @@ class CodeAnalysis extends Component {
 		console.log(results);
 		this.setState({parseErrors: parseErrArr});
 	}
+	toggleShowLink() {
+		const newShowState = !this.state.showLink;
+		this.setState({showLink: newShowState});
+	}
+	generateLink() {
+		return "localhost:3000/shared/"+Object.keys(this.props.ruleManager).map((rule) => {
+			return ""+rule+'-'+this.props.ruleManager[rule].yn;
+		}).join(",");
+	}
 	render() {
 		return (
 				<div>
 				<ModalWrapper/>
 				<div style={{marginTop: "80px", width: '50%', float: 'left'}}>
 				<p>Code:</p>
-				<textarea onChange={::this.storeCode}/>
-				<button onClick={::this.logger}>Click</button>
+				<textarea onChange={::this.storeCode} style={{maxWidth: '90%'}}/>
 				</div><div style={{marginTop: "80px", width: '50%', float: 'right'}}>
 				<button onClick={::this.props.openModal} style={{float: 'left', clear: 'both'}}>Add Rule</button>
 				<hr style={{clear: 'both'}}/>
 				<RuleBox style={{clear: 'both'}} rulesObj={this.props.ruleManager}/>
+				<hr style={{clear: 'both'}}/>
+				<button onClick={::this.toggleShowLink}>{!this.state.showLink ? 'View Link to Share' : 'Hide Link to Share'}</button>
+				{this.state.showLink ? this.generateLink() : ''}
 				</div>
 				<hr style={{clear: 'both'}}/>
 				<ErrorDisplay errArr={this.state.parseErrors}/>
@@ -121,7 +140,10 @@ function mapDispatchToProps(dispatch) {
 					},
 		resetLocations: () => {
 							dispatch(resetLocations());
-						}
+						},
+		addRule: (rule) => {
+					 dispatch(addRule(rule));
+					}
 	}
 }
 export default connect(mapStateToProps, mapDispatchToProps)(CodeAnalysis);

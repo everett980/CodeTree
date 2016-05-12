@@ -55,8 +55,7 @@ class DisplayRule extends Component {
 		if(!childrenRules) {
 			marginStyle['marginBottom'] = '5px';
 		}
-		console.log(this.successFailStatement(this.props.rulesObj[this.props.rules]));
-		console.log(this.props.rulesObj);
+		if(!this.props.isChild) console.log(this.successFailStatement(this.props.rulesObj[String(this.props.rules)]));
 		return (
 			<div style={borderStyle}>
 				<div style={divStyle}>
