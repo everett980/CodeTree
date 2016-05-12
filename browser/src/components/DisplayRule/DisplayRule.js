@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import { openModal, closeModal } from '../../redux/modules/modalCtrl';
+import { deleteRule } from '../../redux/modules/ruleManager';
 
 class DisplayRule extends Component {
 	pass = true;
@@ -24,6 +25,9 @@ class DisplayRule extends Component {
 				return "Your code fails to avoid the specified structure on the following lines: "+ruleObj.loc.join(", ");
 			}
 		}
+	}
+	deleteMe() {
+		this.props.delete(this.props.rules);
 	}
 	render() {
 		let thisRule;
@@ -57,6 +61,7 @@ class DisplayRule extends Component {
 			<div style={borderStyle}>
 				<div style={divStyle}>
 					{!this.props.isChild ? (this.props.rulesObj[this.props.rules].yn === 'Y' ? 'Your Code MUST Contain the following structure:' : 'Your Code MUST NOT Contain the following structure:') : ''}
+			   		{!this.props.isChild ? <button onClick={::this.deleteMe}>Delete</button> : ''}
 					<p style={marginStyle}>	
 					{thisRule}
 					</p>
@@ -74,8 +79,8 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
 	return {
-		openModal: () => {
-					   dispatch(openModal());
+		delete: (r) => {
+					   dispatch(deleteRule(r));
 					  }
 	}
 }

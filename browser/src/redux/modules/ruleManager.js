@@ -15,8 +15,9 @@ export default function reducer(state = {}, action = {}) {
 			return state;
 		case DELETE_RULE:
 			console.log('deleting rule: ', action.rule);
-			state.delete(action.rule.split('-')[0]);
-			return state;
+			const deepDelete = _.cloneDeep(state);
+			delete deepDelete[action.rule];
+			return deepDelete;
 		case ADD_LOCATION:
 			console.log('adding line number '+action.loc+' to rule '+action.rule);
 			/* if(state[action.rule]) {
