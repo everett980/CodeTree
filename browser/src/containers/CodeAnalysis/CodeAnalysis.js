@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Helmet from 'react-helmet';
 import { MiniInfoBar } from 'components';
 import { openModal, closeModal } from '../../redux/modules/modalCtrl';
-import { addLocation } from '../../redux/modules/ruleManager';
+import { addLocation, resetLocations } from '../../redux/modules/ruleManager';
 import { connect } from 'react-redux';
 import { RuleBox } from 'components';
 import { ModalWrapper } from 'components';
@@ -15,19 +15,15 @@ class CodeAnalysis extends Component {
 	storeCode(e) {
 		this.codeVal= e.target.value;
 	}
-	storeRules(e) {
-		this.ruleVal = e.target.value;
-	}
 	logger() {
 		let parsed = acorn.parse(this.codeVal, {locations: true});
 		console.log(parsed);
 		console.log('--\n--\n--');
-		//ruleVal is a string containing all rules. separate rules are separated by commas. within a rule, qualifiers are separated by periods.
-		//eg "WhileStatement.BlockStatement,VariableDeclaration" would mean that we need to look for a BlockStatement inside of a WhileStatement as rule 1, and a Variable Declaration anywhere is rule 2
-		const tests = this.ruleVal.split(",").map(function(testStr) {
+		this.props.resetLocations();
+		const tests = Object.keys(this.props.ruleManager).map(function(testStr) {
 			return {
 				test: testStr,
-			  testsLeft: testStr.split(".")
+			  	testsLeft: testStr.split(".")
 			}
 		});
 		const propRef = this.props;
@@ -81,9 +77,6 @@ class CodeAnalysis extends Component {
 				<div style={{marginTop: "80px", width: '50%', float: 'left'}}>
 				<p>Code:</p>
 				<textarea onChange={::this.storeCode}/>
-				<p>Tests</p>
-				<textarea onChange={::this.storeRules}/>
-				<br/>
 				<button onClick={::this.logger}>Click</button>
 				</div><div style={{marginTop: "80px", width: '50%', float: 'right'}}>
 				<button onClick={::this.props.openModal} style={{float: 'left', clear: 'both'}}>Add Rule</button>
@@ -98,7 +91,8 @@ class CodeAnalysis extends Component {
 
 function mapStateToProps(state) {
 	return {
-		open: state.modalCtrl.open
+		open: state.modalCtrl.open,
+		ruleManager: state.ruleManager
 	}
 }
 function mapDispatchToProps(dispatch) {
@@ -111,7 +105,10 @@ function mapDispatchToProps(dispatch) {
 					},
 		addLocation: (rule, loc) => {
 						 dispatch(addLocation(rule, loc));
-					}
+					},
+		resetLocations: () => {
+							dispatch(resetLocations());
+						}
 	}
 }
 export default connect(mapStateToProps, mapDispatchToProps)(CodeAnalysis);
