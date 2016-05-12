@@ -14,3 +14,4 @@ export WidgetForm from './WidgetForm/WidgetForm';
 export DisplayRule from './DisplayRule/DisplayRule';
 export RuleBox from './RuleBox/RuleBox';
 export ModalWrapper from './ModalWrapper/ModalWrapper';
+export ErrorDisplay from './ErrorDisplay/ErrorDisplay';

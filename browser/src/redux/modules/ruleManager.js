@@ -2,6 +2,7 @@ const ADD_RULE = 'addRule';
 const DELETE_RULE = 'deleteRule';
 const ADD_LOCATION = 'addLocation';
 const RESET_LOCATIONS = 'resetLocations';
+const _ = require('lodash');
 
 export default function reducer(state = {}, action = {}) {
 	switch(action.type) {
@@ -18,16 +19,19 @@ export default function reducer(state = {}, action = {}) {
 			return state;
 		case ADD_LOCATION:
 			console.log('adding line number '+action.loc+' to rule '+action.rule);
-			if(state[action.rule]) {
+			/* if(state[action.rule]) {
 				state[action.rule].loc.push(action.loc);
-			}
-			return state;
+			} */
+			const deepAdd = _.cloneDeep(state);
+			deepAdd[action.rule].loc.push(action.loc);
+			return deepAdd;
 		case RESET_LOCATIONS: 
 			console.log('reseting all locations');
-			Object.keys(state).forEach(function(rule) {
-				state[rule].loc = [];
+			const deepReset = _.cloneDeep(state);
+			Object.keys(deepReset).forEach(function(rule) {
+				deepReset[rule].loc = [];
 			});
-			return state;
+			return deepReset;
 		default:
 			return state;
 	}

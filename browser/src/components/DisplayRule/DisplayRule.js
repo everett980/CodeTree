@@ -3,6 +3,28 @@ import { connect } from 'react-redux';
 import { openModal, closeModal } from '../../redux/modules/modalCtrl';
 
 class DisplayRule extends Component {
+	pass = true;
+	successFailStatement(ruleObj) {
+		if(ruleObj.yn === "Y") {
+			//this rule is required
+			if(!ruleObj.loc.length) {
+				this.pass = false;
+				return "Your code fails to contain the specified structure.";
+			} else {
+				this.pass = true;
+				return "Your code successfully contains the specified structure on the following lines: "+ruleObj.loc.join(", ");
+			}
+		} else {
+			//this rule must not be met
+			if(!ruleObj.loc.length) {
+				this.pass = true;
+				return "Your code successfully does not contain the specified structure.";
+			} else {
+				this.pass = false;
+				return "Your code fails to avoid the specified structure on the following lines: "+ruleObj.loc.join(", ");
+			}
+		}
+	}
 	render() {
 		let thisRule;
 		let childrenRules;
@@ -29,14 +51,17 @@ class DisplayRule extends Component {
 		if(!childrenRules) {
 			marginStyle['marginBottom'] = '5px';
 		}
+		console.log(this.successFailStatement(this.props.rulesObj[this.props.rules]));
+		console.log(this.props.rulesObj);
 		return (
 			<div style={borderStyle}>
 				<div style={divStyle}>
+					{!this.props.isChild ? (this.props.rulesObj[this.props.rules].yn === 'Y' ? 'Your Code MUST Contain the following structure:' : 'Your Code MUST NOT Contain the following structure:') : ''}
 					<p style={marginStyle}>	
 					{thisRule}
 					</p>
 					{childrenRules ? <DisplayRule rules={childrenRules} isChild='true'/> : ""}
-					{!this.props.isChild ? this.props.rulesObj[this.props.rules].yn : ''}
+					{!this.props.isChild && this.props.rulesObj ? this.successFailStatement(this.props.rulesObj[this.props.rules]) : ''}
 				</div>
 			</div>
 		)

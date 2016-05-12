@@ -6,17 +6,21 @@ import { addLocation, resetLocations } from '../../redux/modules/ruleManager';
 import { connect } from 'react-redux';
 import { RuleBox } from 'components';
 import { ModalWrapper } from 'components';
-const acorn = require('acorn');
+import { ErrorDisplay } from 'components';
+const acorn = require('acorn/dist/acorn_loose');
 const Modal = require('react-modal');
 
 class CodeAnalysis extends Component {
+	componentWillMount() {
+		this.setState({parseErrors: []});
+	}
 	codeVal = "";
 	ruleVal = "";
 	storeCode(e) {
 		this.codeVal= e.target.value;
 	}
 	logger() {
-		let parsed = acorn.parse(this.codeVal, {locations: true});
+		let parsed = acorn.parse_dammit(this.codeVal, {locations: true});
 		console.log(parsed);
 		console.log('--\n--\n--');
 		this.props.resetLocations();
@@ -28,10 +32,17 @@ class CodeAnalysis extends Component {
 		});
 		const propRef = this.props;
 		const results = {};
+		const parseErrArr = [];
 		(function execTests(node, tests) {
 			if(!node) return;
 			if(typeof node !== 'object') return;
 			if(!node.hasOwnProperty('type')) return;
+			if(node.name) {
+				if(node.name === "✖") {
+					console.log('found error at: ', node.loc.start.line);
+					parseErrArr.push(""+node.loc.start.line+":"+node.loc.start.column);
+				}
+			}
 			if(!tests) return;
 			const newTests = tests.map(function(test) {
 				const filteredTests = test.testsLeft.filter(function(testStatement, ind) {
@@ -69,6 +80,7 @@ class CodeAnalysis extends Component {
 			});
 		})(parsed, tests);
 		console.log(results);
+		this.setState({parseErrors: parseErrArr});
 	}
 	render() {
 		return (
@@ -84,6 +96,7 @@ class CodeAnalysis extends Component {
 				<RuleBox style={{clear: 'both'}} rulesObj={this.props.ruleManager}/>
 				</div>
 				<hr style={{clear: 'both'}}/>
+				<ErrorDisplay errArr={this.state.parseErrors}/>
 				</div>
 			   );
 	}
