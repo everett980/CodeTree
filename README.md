@@ -5,6 +5,9 @@ CodeTree is a tool that allows users to enter code, and see if they are or are n
 ###Technology Used
 This is an entirely front-end application built using the ReactJS framework. Redux is used to provide convenient data management. React-Router is used in order to handle shared links. React-Modal greatly simplifies the creation of the pop up used when adding rules. Lastly, and most importantly, Acorn was used to parse the JavaScript code provided by the user. I chose Acorn over other options because it claims to be faster than other parsers, and it is also smaller than other parsers. Being smaller means it is less demanding to load the framework onto the front end, which is always a benefit.
 
+###How to Try It
+After cloning the repo, change directory to browser and npm install. After that run npm run dev and then go to localhost:3000. Ctrl + H will toggle the view of the redux store. Enter code into the text area and watch the rules on the left automatically pass and fail appropriately. Easily add rules through a pop up modal, then edit your code and see if you are still passing all the rules! Any parsing errors will be displayed below.
+
 ###Files Worth Looking At
 #####browser/src/containers/CodeAnalysis/CodeAnalysis.js
 This is where the tree traversal logic is as well as displaying all the UI either directly or through child components.
