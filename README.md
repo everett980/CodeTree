@@ -16,6 +16,7 @@ This component contains child components which display each rule as well as whet
 This component displays all the details of a current rule, whether it is white listed or black listed, as well as if it is currently passing or failing.
 #####browser/src/components/ErrorDisplay/ErrorDisplay.js
 This component simply displays any syntax errors found by acorn, or tells the user they are all clear.
-
 #####browser/src/components/ModalWrapper/ModalWrapper.js
 This is where I created the modal used to add new rules.
+#####browser/src/redux/modules/modalCtrl.js
+This is a very simple reducer used to toggle whether the add rule modal is open or closed, accessed from multiple components.
