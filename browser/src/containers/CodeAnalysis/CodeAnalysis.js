@@ -95,6 +95,7 @@ class CodeAnalysis extends Component {
 		this.setState({showLink: newShowState});
 	}
 	generateLink() {
+		if (!Object.keys(this.props.ruleManager).length) return "Add some rules before sharing!";
 		return "localhost:3000/shared/"+Object.keys(this.props.ruleManager).map((rule) => {
 			return ""+rule+'-'+this.props.ruleManager[rule].yn;
 		}).join(",");
@@ -102,20 +103,25 @@ class CodeAnalysis extends Component {
 	render() {
 		return (
 				<div>
+				<h1>Code Analyzer</h1>
 				<ModalWrapper/>
-				<div style={{marginTop: "80px", width: '50%', float: 'left'}}>
+				<div style={{width: '50%', float: 'left'}}>
 				<p>Code:</p>
 				<textarea onChange={::this.storeCode} style={{maxWidth: '90%'}}/>
-				</div><div style={{marginTop: "80px", width: '50%', float: 'right'}}>
-				<button onClick={::this.props.openModal} style={{float: 'left', clear: 'both'}}>Add Rule</button>
+				</div><div style={{width: '50%', float: 'right'}}>
+				<button onClick={::this.props.openModal} style={{float: 'left', clear: 'both', backgroundColor: '#4169E1', border: '2px solid darkgrey', padding: '5px', margin: '8px'}}>Add Rule</button>
 				<hr style={{clear: 'both'}}/>
 				<RuleBox style={{clear: 'both'}} rulesObj={this.props.ruleManager}/>
 				<hr style={{clear: 'both'}}/>
-				<button onClick={::this.toggleShowLink}>{!this.state.showLink ? 'View Link to Share' : 'Hide Link to Share'}</button>
+				<button onClick={::this.toggleShowLink} style={{backgroundColor: '#4169E1', border: '2px solid darkgrey', padding: '5px', margin: '8px'}}>{!this.state.showLink ? 'View Link to Share' : 'Hide Link to Share'}</button>
+				<br/>
 				{this.state.showLink ? this.generateLink() : ''}
 				</div>
 				<hr style={{clear: 'both'}}/>
 				<ErrorDisplay errArr={this.state.parseErrors}/>
+				<hr/>
+				<p>Made by Everett Ross</p>
+				<a href='https://github.com/everett980/codetree' target="_blank">View Github Repo</a>
 				</div>
 			   );
 	}

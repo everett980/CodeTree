@@ -55,17 +55,23 @@ class DisplayRule extends Component {
 		if(!childrenRules) {
 			marginStyle['marginBottom'] = '5px';
 		}
+		const successFailStyle = {};
+		if(this.pass) {
+			successFailStyle.color = 'rgba(120,153,34,1.0)';
+		} else {
+			successFailStyle.color = 'rgba(139,0,0,1.0)';
+		}
 		if(!this.props.isChild) console.log(this.successFailStatement(this.props.rulesObj[String(this.props.rules)]));
 		return (
 			<div style={borderStyle}>
 				<div style={divStyle}>
 					{!this.props.isChild ? (this.props.rulesObj[this.props.rules].yn === 'Y' ? 'Your Code MUST Contain the following structure:' : 'Your Code MUST NOT Contain the following structure:') : ''}
-			   		{!this.props.isChild ? <button onClick={::this.deleteMe}>Delete</button> : ''}
+			   		{!this.props.isChild ? <button onClick={::this.deleteMe} style={{backgroundColor: 'rgba(139,0,0, .5)', border: '2px solid darkgrey', marginLeft: '8px'}}>Delete</button> : ''}
 					<p style={marginStyle}>	
 					{thisRule}
 					</p>
 					{childrenRules ? <DisplayRule rules={childrenRules} isChild='true'/> : ""}
-					{!this.props.isChild && this.props.rulesObj ? this.successFailStatement(this.props.rulesObj[this.props.rules]) : ''}
+					<p style={successFailStyle}>{!this.props.isChild && this.props.rulesObj ? this.successFailStatement(this.props.rulesObj[this.props.rules]) : ''}</p>
 				</div>
 			</div>
 		)
