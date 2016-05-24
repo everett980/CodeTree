@@ -56,7 +56,8 @@ class DisplayRule extends Component {
 			marginStyle['marginBottom'] = '5px';
 		}
 		const successFailStyle = {};
-		if(!this.pass) {
+		const statement = !this.props.isChild && this.props.rulesObj ? this.successFailStatement(this.props.rulesObj[this.props.rules]) : ''
+		if(this.pass) {
 			successFailStyle.color = 'rgba(120,153,34,1.0)';
 		} else {
 			successFailStyle.color = 'rgba(139,0,0,1.0)';
@@ -70,7 +71,7 @@ class DisplayRule extends Component {
 					{thisRule}
 					</p>
 					{childrenRules ? <DisplayRule rules={childrenRules} isChild='true'/> : ""}
-					<p style={successFailStyle}>{!this.props.isChild && this.props.rulesObj ? this.successFailStatement(this.props.rulesObj[this.props.rules]) : ''}</p>
+					<p style={successFailStyle}>{statement}</p>
 				</div>
 			</div>
 		)
