@@ -56,7 +56,7 @@ class DisplayRule extends Component {
 			marginStyle['marginBottom'] = '5px';
 		}
 		const successFailStyle = {};
-		if(this.pass) {
+		if(!this.pass) {
 			successFailStyle.color = 'rgba(120,153,34,1.0)';
 		} else {
 			successFailStyle.color = 'rgba(139,0,0,1.0)';
