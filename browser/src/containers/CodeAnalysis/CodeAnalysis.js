@@ -23,14 +23,14 @@ class CodeAnalysis extends Component {
 		}
 	}
 	codeVal = "";
+	lastChangeTime = 0;
 	storeCode(e) {
 		this.codeVal= e.target.value;
+		this.lastChangeTime = Date.now();
 		this.logger();
 	}
 	logger() {
 		let parsed = acorn.parse_dammit(this.codeVal, {locations: true});
-		console.log(parsed);
-		console.log('--\n--\n--');
 		this.props.resetLocations();
 		const tests = Object.keys(this.props.ruleManager).map(function(testStr) {
 			return {
@@ -41,17 +41,27 @@ class CodeAnalysis extends Component {
 		const propRef = this.props;
 		const results = {};
 		const parseErrArr = [];
-		(function execTests(node, tests) {
-			if(!node) return;
-			if(typeof node !== 'object') return;
-			if(!node.hasOwnProperty('type')) return;
-			if(node.name) {
+		const that = this;
+		(function execTests(node, tests, initialInvoctionTime) {
+
+			// if initialInvoctionTime is not equal to this.lastChangeTime that means changes have happened during the time this recursive function takes to execute
+			// as such, newer invoctions of storeCode and logger should be executed instead of old invoctions that are still being process
+			// these recursive calls can be "interupted" because of the setTimeouts below
+			if (initialInvoctionTime !== that.lastChangeTime) return;
+			// many tests to ensure the 'node' that will be processed is a valid node and not any old object
+			if (!node) return;
+			if (typeof node !== 'object') return;
+			if (!node.hasOwnProperty('type')) return;
+
+			// detects parsing errors which are displayed at the bottom of the page
+			if (node.name) {
 				if(node.name === "✖") {
-					console.log('found error at: ', node.loc.start.line);
 					parseErrArr.push(""+node.loc.start.line+":"+node.loc.start.column);
 				}
 			}
-			if(!tests) return;
+			if (!tests) return;
+			
+			// this map and the internal filter detect if the current node matches any of the rules being tested. if there is a match, remove that segment of the rule, allowing future calls to know that a rule has been partially completed
 			const newTests = tests.map(function(test) {
 				const filteredTests = test.testsLeft.filter(function(testStatement, ind) {
 					if(ind) return true;
@@ -68,6 +78,7 @@ class CodeAnalysis extends Component {
 					testsLeft: filteredTests
 				}
 			}).filter((test) => {
+				// this filter handles rules which have had all their conditions removed. if the rule is out of conditions, then we have found a location that fulfills the defined rule which will be stored for later display
 				if(test.testsLeft.length) {
 					return true;
 				} else {
@@ -76,18 +87,27 @@ class CodeAnalysis extends Component {
 					return false;
 				}
 			});
+
+			// recursively invokes this IIFE on all properties. if the given property is an array, the IIFE is invoked on each element.
 			Object.keys(node).forEach(function(property) {
 				let nextToProcess = node[property];
 				if(Array.isArray(nextToProcess)) {
 					nextToProcess.forEach(function(el) {
-						execTests(el, newTests);
+
+						// setTimeout is used to prevent the recursive calls from blocking the rest of the JavaScript on the page
+						setTimeout(function() {
+							execTests(el, newTests, initialInvoctionTime);
+						}, 0);
 					});
 				} else {
-					execTests(nextToProcess, newTests);
+					
+					// setTimeout is used to prevent the recursive calls from blocking the rest of the JavaScript on the page
+					setTimeout(function() {
+						execTests(nextToProcess, newTests, initialInvoctionTime);
+					}, 0);
 				}
 			});
-		})(parsed, tests);
-		console.log(results);
+		})(parsed, tests, that.lastChangeTime);
 		this.setState({parseErrors: parseErrArr});
 	}
 	toggleShowLink() {

@@ -61,7 +61,6 @@ class DisplayRule extends Component {
 		} else {
 			successFailStyle.color = 'rgba(139,0,0,1.0)';
 		}
-		if(!this.props.isChild) console.log(this.successFailStatement(this.props.rulesObj[String(this.props.rules)]));
 		return (
 			<div style={borderStyle}>
 				<div style={divStyle}>
