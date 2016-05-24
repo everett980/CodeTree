@@ -5,7 +5,6 @@
  *
  */
 
-export GithubButton from './GithubButton/GithubButton';
 export DisplayRule from './DisplayRule/DisplayRule';
 export RuleBox from './RuleBox/RuleBox';
 export ModalWrapper from './ModalWrapper/ModalWrapper';
